@@ -11,24 +11,29 @@ async function amazonCheck(): Promise<string | null> {
   // Wait for browser launching.
   const browser = await puppeteer.launch({ headless: true });
   // Wait for creating the new page.
-  const page = await browser.newPage();
+  try {
+    const page = await browser.newPage();
 
-  const tablet = puppeteer.devices['iPad landscape']
-  await page.emulate(tablet)
+    const tablet = puppeteer.devices['iPad landscape']
+    await page.emulate(tablet)
 
-  await page.goto(link);
+    await page.goto(link);
 
-  await sleep(500);
+    await sleep(500);
 
-  const inStockItems = await page.$x("//button/div/span[contains(text(), 'Add to Cart')]|//a/div/span[contains(text(), 'See buying options')]");
+    const inStockItems = await page.$x("//button/div/span[contains(text(), 'Add to Cart')]|//a/div/span[contains(text(), 'See buying options')]");
 
-  if (inStockItems.length > 0) {
-    notifier.notify({
-      title: '3080 stock',
-      message: `Amazon 3080 stock. items: ${inStockItems.length}\n${link}`,
-      sound: true,
-      wait: true,
-    });
+    if (inStockItems.length > 0) {
+      console.log(`Amazon inStock: ${inStockItems.length}`);
+      notifier.notify({
+        title: '3080 stock',
+        message: `Amazon 3080 stock. items: ${inStockItems.length}\n${link}`,
+        sound: true,
+        wait: true,
+      });
+    }
+  } catch (e) {
+    console.error('amazon check failed');
   }
 
   browser.close();
@@ -40,28 +45,33 @@ async function amazonCheck(): Promise<string | null> {
 
 async function neweggCheck(): Promise<string | null> {
   console.log('checking newegg....');
-  const link = 'https://www.newegg.com/p/pl?d=rtx+3080';
+  const link = 'https://www.newegg.com/p/pl?d=rtx+3080&N=100007709&isdeptsrh=1';
   // Wait for browser launching.
   const browser = await puppeteer.launch({ headless: true });
   // Wait for creating the new page.
-  const page = await browser.newPage();
+  try {
+    const page = await browser.newPage();
 
-  const tablet = puppeteer.devices['iPad landscape']
-  await page.emulate(tablet)
+    const tablet = puppeteer.devices['iPad landscape']
+    await page.emulate(tablet)
 
-  await page.goto(link);
+    await page.goto(link);
 
-  await sleep(500);
+    await sleep(500);
 
-  const inStockItems = await page.$x("//button[contains(text(), 'Add to cart')]");
+    const inStockItems = await page.$x("//button[contains(text(), 'Add to cart')]");
 
-  if (inStockItems.length > 0) {
-    notifier.notify({
-      title: '3080 stock',
-      message: `Newegg 3080 stock. items: ${inStockItems.length}\n${link}`,
-      sound: true,
-      wait: true,
-    });
+    if (inStockItems.length > 0) {
+      console.log(`Newegg inStock: ${inStockItems.length}`);
+      notifier.notify({
+        title: '3080 stock',
+        message: `Newegg 3080 stock. items: ${inStockItems.length}\n${link}`,
+        sound: true,
+        wait: true,
+      });
+    }
+  } catch (e) {
+    console.error('newegg check failed');
   }
 
   browser.close();
@@ -77,24 +87,29 @@ async function bbCheck(): Promise<string | null> {
   // Wait for browser launching.
   const browser = await puppeteer.launch({ headless: true });
   // Wait for creating the new page.
-  const page = await browser.newPage();
+  try {
+    const page = await browser.newPage();
 
-  const tablet = puppeteer.devices['iPad landscape']
-  await page.emulate(tablet)
+    const tablet = puppeteer.devices['iPad landscape']
+    await page.emulate(tablet)
 
-  await page.goto(link);
+    await page.goto(link);
 
-  await sleep(500);
+    await sleep(500);
 
-  const inStockItems = await page.$x("//button[contains(text(), 'Add to Cart')]");
+    const inStockItems = await page.$x("//button[contains(text(), 'Add to Cart')]");
 
-  if (inStockItems.length > 0) {
-    notifier.notify({
-      title: '3080 stock',
-      message: `Best Buy 3080 stock. items: ${inStockItems.length}\n${link}`,
-      sound: true,
-      wait: true,
-    });
+    if (inStockItems.length > 0) {
+      console.log(`Best buy inStock: ${inStockItems.length}`);
+      notifier.notify({
+        title: '3080 stock',
+        message: `Best Buy 3080 stock. items: ${inStockItems.length}\n${link}`,
+        sound: true,
+        wait: true,
+      });
+    }
+  } catch(e) {
+    console.error('best buy check failed');
   }
 
   browser.close();
