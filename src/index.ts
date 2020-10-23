@@ -27,6 +27,7 @@ async function amazonCheck(): Promise<string | null> {
       title: '3080 stock',
       message: `Amazon 3080 stock. items: ${inStockItems.length}\n${link}`,
       sound: true,
+      wait: true,
     });
   }
 
@@ -59,6 +60,7 @@ async function neweggCheck(): Promise<string | null> {
       title: '3080 stock',
       message: `Newegg 3080 stock. items: ${inStockItems.length}\n${link}`,
       sound: true,
+      wait: true,
     });
   }
 
@@ -91,6 +93,7 @@ async function bbCheck(): Promise<string | null> {
       title: '3080 stock',
       message: `Best Buy 3080 stock. items: ${inStockItems.length}\n${link}`,
       sound: true,
+      wait: true,
     });
   }
 
@@ -109,7 +112,7 @@ async function bootstrap() {
       bbCheck(),
     ]);
 
-    sleep(6000);
+    sleep(2000);
   }
 }
 
