@@ -2,6 +2,7 @@ import { Browser, Page, devices, ElementHandle, LoadEvent } from "puppeteer";
 import { ChalkFunction } from 'chalk';
 import chalk = require("chalk");
 import * as notifier from 'node-notifier';
+import { MessageEmbed, TextChannel } from "discord.js";
 
 export interface Item {
   price: number,
@@ -16,10 +17,11 @@ export abstract class Scraper {
 
   private readonly broswer: Browser;
   private readonly cooldown_time: number;
-  private readonly url: string;
   private readonly max_price: number;
   private readonly load_conditions: LoadEvent[];
 
+  protected readonly url: string;
+  protected readonly discord_channel: TextChannel;
   protected selector: string;
   protected retailer: string;
   protected chalkHeader: ChalkFunction;
@@ -28,12 +30,13 @@ export abstract class Scraper {
   private last_hit: Date;
 
 
-  constructor(browser: Browser, url: string, cooldown_time: number, max_price: number, load_conditions: LoadEvent[] = ["load"]) {
+  constructor(discord_channel: TextChannel, browser: Browser, url: string, cooldown_time: number, max_price: number, load_conditions: LoadEvent[] = ["load"]) {
     this.broswer = browser;
     this.url = url;
     this.cooldown_time = cooldown_time;
     this.max_price = max_price;
     this.load_conditions = load_conditions;
+    this.discord_channel = discord_channel;
   }
 
   async setup() {
@@ -98,10 +101,11 @@ export abstract class Scraper {
     }
 
     if (validItems.length > 0) {
+      await this.sendToDiscord(validItems);
       console.log(`Items found. Starting cooldown timer for ${this.cooldown_time}ms`);
       notifier.notify({
-        title: '3080 stock',
-        message: `Amazon 3080 stock. items: ${validItems.length}`,
+        title: 'New stock',
+        message: `${this.retailer} stock. items: ${validItems.length}`,
         sound: true,
         wait: true,
       });
@@ -111,6 +115,18 @@ export abstract class Scraper {
     console.log(`\nFinished fetching items from: ${this.retailer}`);
 
     return validItems;
+  }
+
+  async sendToDiscord(validItems: Array<Item>) {
+    const itemEmbed = new MessageEmbed()
+      .setTitle(`${this.retailer} Stock`)
+    
+    validItems.map(item => {
+      itemEmbed.addField(`${item.name}    |    $${item.price}`, `${item.checkout_link}\n\n`);
+    });
+
+    await this.discord_channel.send('@everyone');
+    await this.discord_channel.send(itemEmbed);
   }
 
   async printItem(item: Item) {

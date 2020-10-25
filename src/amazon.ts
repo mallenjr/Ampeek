@@ -1,4 +1,5 @@
 import chalk = require("chalk");
+import { TextChannel, MessageEmbed } from "discord.js";
 import { Browser, ElementHandle } from "puppeteer";
 import { Item, Scraper } from "./scraper"
 const defaultUrl = 'https://www.amazon.com/stores/page/EE5B50AD-FBA9-40D8-9631-8E340D2B7B15'
@@ -6,8 +7,8 @@ const defaultUrl = 'https://www.amazon.com/stores/page/EE5B50AD-FBA9-40D8-9631-8
 export class AmazonScraper extends Scraper {
   private readonly session_id: string;
 
-  constructor (browser: Browser, session_id: string, url: string = defaultUrl, cooldown_time: number = 10000, max_price: number = 1000.00) {
-    super(browser, url, cooldown_time, max_price, [ "load", "networkidle2" ]);
+  constructor (discord_channel: TextChannel, browser: Browser, session_id: string, url: string = defaultUrl, cooldown_time: number = 15000, max_price: number = 1000.00) {
+    super(discord_channel, browser, url, cooldown_time, max_price, [ "load", "networkidle2" ]);
     this.selector = '//button/div/span[contains(text(), "Add to Cart")]/ancestor::div[starts-with(@class,"style__itemInfo__")]';
     this.retailer = 'Amazon';
     this.session_id = session_id;
@@ -40,6 +41,18 @@ export class AmazonScraper extends Scraper {
 
   getCheckoutLinkFromSku(sku: string) {
     return `https://www.amazon.com/gp/add-to-cart/json/ref=ast_sto_atc?clientName=amazon-stores-rendering&verificationSessionID=${this.session_id}&ASIN=${sku}`;
+  }
+
+  async sendToDiscord(validItems: Array<Item>) {
+    const itemEmbed = new MessageEmbed()
+      .setTitle(`${this.retailer} Stock`)
+    
+    validItems.map(item => {
+      itemEmbed.addField(`${item.name}    |    $${item.price}`, `${item.checkout_link}\n\nhttps://www.amazon.com/gp/cart/view.html?ref_=nav_cart\n\n`);
+    });
+
+    await this.discord_channel.send('@everyone');
+    await this.discord_channel.send(itemEmbed);
   }
 
   async printItem(item: Item) {
