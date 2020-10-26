@@ -43,16 +43,12 @@ export class AmazonScraper extends Scraper {
     return `https://www.amazon.com/gp/add-to-cart/json/ref=ast_sto_atc?clientName=amazon-stores-rendering&verificationSessionID=${this.session_id}&ASIN=${sku}`;
   }
 
-  async sendToDiscord(validItems: Array<Item>) {
-    const itemEmbed = new MessageEmbed()
-      .setTitle(`${this.retailer} Stock`)
-    
-    validItems.map(item => {
-      itemEmbed.addField(`${item.name}    |    $${item.price}`, `${item.checkout_link}\n\nhttps://www.amazon.com/gp/cart/view.html?ref_=nav_cart\n\n`);
-    });
-
-    await this.discord_channel.send('@everyone');
-    await this.discord_channel.send(itemEmbed);
+  async addItemToEmbed(itemEmbed: MessageEmbed, item: Item) {
+    itemEmbed.addField(`${item.name}`, `$${item.price}`)
+      .addFields(
+        { name: 'Add to cart', value: item.checkout_link, inline: true },
+        { name: 'Checkout', value: 'https://www.amazon.com/gp/cart/view.html?ref_=nav_cart', inline: true}
+      );
   }
 
   async printItem(item: Item) {

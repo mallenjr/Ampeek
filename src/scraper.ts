@@ -72,9 +72,14 @@ export abstract class Scraper {
     }
 
     console.log(`\nFetching items from: `, this.chalkHeader(this.retailer));
-    await this.page.reload({ waitUntil: this.load_conditions });
-    const elements = await this.page.$x(this.selector);
+    try {
+      await this.page.reload({ waitUntil: this.load_conditions });
+    } catch (e) {
+      console.log(`Failed fetching items from: ${this.retailer}`);
+      return [];
+    }
 
+    const elements = await this.page.$x(this.selector);
     let validItems: Array<Item> = [];
 
     for (const element of elements) {
@@ -117,12 +122,19 @@ export abstract class Scraper {
     return validItems;
   }
 
+  async addItemToEmbed(itemEmbed: MessageEmbed, item: Item) {
+    itemEmbed.addField(`${item.name}`, `$${item.price}`)
+      .addFields(
+        { name: 'Add to cart', value: item.checkout_link, inline: true },
+      );
+  }
+
   async sendToDiscord(validItems: Array<Item>) {
     const itemEmbed = new MessageEmbed()
-      .setTitle(`${this.retailer} Stock`)
+      .addField(`${this.retailer} Stock: ${validItems.length} items`, this.url);
     
     validItems.map(item => {
-      itemEmbed.addField(`${item.name}    |    $${item.price}`, `${item.checkout_link}\n\n`);
+      this.addItemToEmbed(itemEmbed, item);
     });
 
     await this.discord_channel.send('@everyone');
