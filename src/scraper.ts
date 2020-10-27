@@ -24,6 +24,7 @@ export abstract class Scraper {
   protected readonly discord_channel: TextChannel;
   protected selector: string;
   protected retailer: string;
+  protected item_name: string;
   protected chalkHeader: ChalkFunction;
 
   private page: Page;
@@ -110,7 +111,7 @@ export abstract class Scraper {
       console.log(`Items found. Starting cooldown timer for ${this.cooldown_time}ms`);
       notifier.notify({
         title: 'New stock',
-        message: `${this.retailer} stock. items: ${validItems.length}`,
+        message: `${this.retailer} ${this.item_name} stock. amount: ${validItems.length}`,
         sound: true,
         wait: true,
       });
@@ -126,6 +127,7 @@ export abstract class Scraper {
     itemEmbed.addField(`${item.name}`, `$${item.price}`)
       .addFields(
         { name: 'Add to cart', value: item.checkout_link, inline: true },
+        { name: 'Item link', value: item.link, inline: true }
       );
   }
 
@@ -137,7 +139,7 @@ export abstract class Scraper {
       this.addItemToEmbed(itemEmbed, item);
     });
 
-    await this.discord_channel.send('@everyone');
+    // await this.discord_channel.send('@everyone');
     await this.discord_channel.send(itemEmbed);
   }
 

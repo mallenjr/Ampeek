@@ -1,14 +1,16 @@
 import { Browser, ElementHandle } from "puppeteer";
 import { Scraper } from "./scraper";
 import chalk = require("chalk");
+import { TextChannel } from "discord.js";
 
 export class NeweggScraper extends Scraper {
-  constructor(discord_channel, browser: Browser, item_query_pram: string = 'rtx+2060', cooldown_time: number = 15000, max_price: number = 1000.00) {
+  constructor(discord_channel: TextChannel, browser: Browser, item_query_pram: string = 'rtx+2060', item_name: string = 'RTX 2060', cooldown_time: number = 15000, max_price: number = 1000.00) {
     const url = `https://www.newegg.com/p/pl?d=${item_query_pram}&N=100007709%204841&isdeptsrh=1`;
     super(discord_channel, browser, url, cooldown_time, max_price);
     this.selector = '//button[contains(text(), "Add to cart")]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " item-cell ")]';
     this.retailer = 'Newegg';
     this.chalkHeader = chalk.bold.yellow;
+    this.item_name = item_name;
   }
 
   async getSkuFromElement(element: ElementHandle): Promise<string> {

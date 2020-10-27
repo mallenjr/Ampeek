@@ -7,12 +7,13 @@ const defaultUrl = 'https://www.amazon.com/stores/page/EE5B50AD-FBA9-40D8-9631-8
 export class AmazonScraper extends Scraper {
   private readonly session_id: string;
 
-  constructor (discord_channel: TextChannel, browser: Browser, session_id: string, url: string = defaultUrl, cooldown_time: number = 15000, max_price: number = 1000.00) {
+  constructor (discord_channel: TextChannel, browser: Browser, session_id: string, url: string = defaultUrl, item_name: string = 'RTX 2060', cooldown_time: number = 15000, max_price: number = 1000.00) {
     super(discord_channel, browser, url, cooldown_time, max_price, [ "load", "networkidle2" ]);
     this.selector = '//button/div/span[contains(text(), "Add to Cart")]/ancestor::div[starts-with(@class,"style__itemInfo__")]';
     this.retailer = 'Amazon';
     this.session_id = session_id;
     this.chalkHeader = chalk.bold.yellow;
+    this.item_name = item_name;
   }
 
   async getSkuFromElement(element: ElementHandle): Promise<string> {
