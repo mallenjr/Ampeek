@@ -62,6 +62,14 @@ export abstract class Scraper {
     return 'This function should be overriden.';
   }
 
+  async inStock(element: ElementHandle): Promise<boolean> {
+    return true;
+  }
+
+  async preparseWait(): Promise<void> {
+    return;
+  }
+
   getCheckoutLinkFromSku(sku: string): string {
     return 'This function should be overridden';
   }
@@ -72,18 +80,24 @@ export abstract class Scraper {
       return [];
     }
 
-    console.log(`\nFetching items from: `, this.chalkHeader(this.retailer));
+    console.log(`\nFetching item (${this.item_name}) from: `, this.chalkHeader(this.retailer));
     try {
       await this.page.reload({ waitUntil: this.load_conditions });
     } catch (e) {
-      console.log(`Failed fetching items from: ${this.retailer}`);
+      console.log(e);
+      console.log(`Failed fetching item (${this.item_name}) from: ${this.retailer}`);
       return [];
     }
+
+    await this.preparseWait();
 
     const elements = await this.page.$x(this.selector);
     let validItems: Array<Item> = [];
 
     for (const element of elements) {
+      if (!(await this.inStock(element))) {
+        continue;
+      }
       const sku = await this.getSkuFromElement(element);
       const checkout_link = this.getCheckoutLinkFromSku(sku);
       const name = await this.getNameFromElement(element);
@@ -118,7 +132,7 @@ export abstract class Scraper {
       this.last_hit = new Date();
     }
 
-    console.log(`\nFinished fetching items from: ${this.retailer}`);
+    console.log(`\nFinished fetching item (${this.item_name}) from: `, this.chalkHeader(this.retailer));
 
     return validItems;
   }

@@ -1,14 +1,12 @@
 import { Client, TextChannel } from 'discord.js';
 import * as puppeteer from 'puppeteer';
-import { AmazonScraper } from './amazon';
+import { sleep } from './utils';
+// import { AmazonScraper } from './amazon';
 import { BestBuyScraper } from './bestBuy';
-import { NeweggScraper } from './newegg';
+import { WalmartScraper } from './walmart';
+// import { NeweggScraper } from './newegg';
 
 require('dotenv').config();
-
-async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function bootstrap() {
   const browser = await puppeteer.launch({ headless: true });
@@ -30,35 +28,19 @@ async function bootstrap() {
     browser.close();
   });
 
-  const bestBuyScraper3080 = new BestBuyScraper(discordChannel, browser, 'rtx+3080', 'RTX 3080');
-  await bestBuyScraper3080.setup();
+  const bestBuyPlaystationScraper = new BestBuyScraper(discordChannel, browser, 'playstation 5-console&qp=features_facet%3DFeatures~High Dynamic Range (HDR)', 'Playstation 5');
+  await bestBuyPlaystationScraper.setup();
 
-  const bestBuyScraper3070 = new BestBuyScraper(discordChannel, browser, 'rtx+3070', 'RTX 3070');
-  await bestBuyScraper3070.setup();
-
-  const neweggScraper3080 = new NeweggScraper(discordChannel, browser, 'rtx+3080', 'RTX 3080');
-  await neweggScraper3080.setup();
-
-  const neweggScraper3070 = new NeweggScraper(discordChannel, browser, 'rtx+3070', 'RTX 3070');
-  await neweggScraper3070.setup();
-
-  const amazonScraper3080 = new AmazonScraper(discordChannel, browser, process.env.AMAZON_SESSION_ID, 'https://www.amazon.com/stores/page/6B204EA4-AAAC-4776-82B1-D7C3BD9DDC82', 'RTX 3080');
-  await amazonScraper3080.setup();
-
-  const amazonScraper3070 = new AmazonScraper(discordChannel, browser, process.env.AMAZON_SESSION_ID, 'https://www.amazon.com/stores/page/127E4131-DA71-49E3-902E-C382ABEC4AC3', 'RTX 3070');
-  await amazonScraper3070.setup();
+  const walmartPlaystationScraper = new WalmartScraper(discordChannel, browser, 'playstation+5+console&cat_id=2636_3475115_2762884&facet=retailer%3AWalmart.com', 'Playstation 5');
+  await walmartPlaystationScraper.setup();
 
   while (true) {
     await Promise.all([
-      bestBuyScraper3080.getItems(),
-      bestBuyScraper3070.getItems(),
-      neweggScraper3080.getItems(),
-      amazonScraper3080.getItems(),
-      amazonScraper3070.getItems(),
-      neweggScraper3070.getItems(),
+      bestBuyPlaystationScraper.getItems(),
+      walmartPlaystationScraper.getItems(),
     ]);
 
-    const sleep_time = Math.floor((Math.random() * 1200) + 1600);
+    const sleep_time = Math.floor((Math.random() * 1200) + 500);
     await sleep(sleep_time);
   }
 }
