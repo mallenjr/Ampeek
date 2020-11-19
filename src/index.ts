@@ -1,9 +1,9 @@
 import { Client, TextChannel } from 'discord.js';
 import * as puppeteer from 'puppeteer';
-import { sleep } from './scraper/utils';
-import { AmazonScraper } from './scraper/amazon';
-import { BestBuyScraper } from './scraper/bestBuy';
-import { WalmartScraper } from './scraper/walmart';
+import { sleep } from './utils';
+import { AmazonScraper } from './retailers/amazon';
+import { BestBuyScraper } from './retailers/bestBuy';
+import { WalmartScraper } from './retailers/walmart';
 // import { NeweggScraper } from './newegg';
 
 require('dotenv').config();

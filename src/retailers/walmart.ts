@@ -1,5 +1,5 @@
 import { Browser, ElementHandle } from 'puppeteer';
-import { Item, Scraper } from './scraper';
+import { Item, Scraper } from '../scraper';
 import chalk = require("chalk");
 import { MessageEmbed, TextChannel } from 'discord.js';
 
