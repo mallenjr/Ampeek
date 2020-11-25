@@ -9,7 +9,7 @@ import { WalmartScraper } from './retailers/walmart';
 require('dotenv').config();
 
 async function bootstrap() {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: false });
   const bot = new Client();
 
   bot.login(process.env.DISCORD_BOT_TOKEN);

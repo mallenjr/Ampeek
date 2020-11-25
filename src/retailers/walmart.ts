@@ -1,7 +1,7 @@
 import { Browser, ElementHandle } from 'puppeteer';
 import { Item, Scraper } from '../scraper';
 import chalk = require("chalk");
-import { MessageEmbed, TextChannel } from 'discord.js';
+import { MessageEmbed, TextChannel } from 'discord.js'; 
 
 export class WalmartScraper extends Scraper {
   constructor(discord_channel: TextChannel, browser: Browser, item_query_param: string, item_name: string, cooldown_time: number = 15000, max_price: number = 1000.00) {

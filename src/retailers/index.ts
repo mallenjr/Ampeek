@@ -15,11 +15,11 @@ export const Scrapers = {
   'amazon': AmazonScraper,
   'newegg': NeweggScraper,
   'walmart': WalmartScraper,
-}
+};
 
 export const Retailers = [
   'bestbuy',
   'amazon',
   'newegg',
-  'walmart'
-]
+  'walmart',
+];
