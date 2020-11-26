@@ -5,11 +5,9 @@ import { TextChannel } from 'discord.js';
 import { sleep } from '../utils';
 
 export class BestBuyScraper extends Scraper {
-  constructor(discord_channel: TextChannel, browser: Browser, item_query_param: string = 'rtx+2060', item_name: string = 'RTX 2060', cooldown_time: number = 15000, max_price: number = 1000.00) {
-    const url = `https://www.bestbuy.com/site/searchpage.jsp?st=${item_query_param}&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys`
+  constructor(discord_channel: TextChannel, browser: Browser, url: string, item_name: string = 'RTX 2060', cooldown_time: number = 15000, max_price: number = 1000.00) {
     super(discord_channel, browser, url, cooldown_time, max_price)
-    this.selector = '//a[contains(text(), "See Details")]/ancestor::li[contains(concat(" ", normalize-space(@class), " "), " sku-item ")]\
-      |//button[contains(text(), "Add to Cart")]/ancestor::li[contains(concat(" ", normalize-space(@class), " "), " sku-item ")]';
+    this.selector = '//a[contains(text(), "Add to Cart")]|//button[contains(text(), "Add to Cart")]|//span[contains(text(), "Add to Cart")]';
     this.retailer = 'Best Buy';
     this.chalkHeader = chalk.bold.blue;
     this.item_name = item_name;

@@ -43,7 +43,18 @@ export abstract class Scraper {
   async setup() {
     this.page = await this.broswer.newPage();
     await this.page.emulate(this.userAgent);
+    await this.page.setRequestInterception(true);
+    this.page.on('request', request => {
+      if (request.resourceType() === 'script')
+        request.abort();
+      else
+        request.continue();
+    });
     await this.page.goto(this.url);
+  }
+
+  async close() {
+    await this.page.close();
   }
 
   async getSkuFromElement(element: ElementHandle): Promise<string> {
@@ -72,6 +83,30 @@ export abstract class Scraper {
 
   getCheckoutLinkFromSku(sku: string): string {
     return 'This function should be overridden';
+  }
+
+  async checkItemInStock(): Promise<boolean> {
+    if (this.last_hit && new Date().getTime() < this.last_hit.getTime() + this.cooldown_time) {
+      console.log(`Cooldown active for ${this.retailer}. Skipping scrape.`);
+      return false;
+    }
+
+    console.log(`\nFetching item (${this.item_name}) from: `, this.chalkHeader(this.retailer));
+    try {
+      await this.page.reload({ waitUntil: this.load_conditions });
+    } catch (e) {
+      console.log(e);
+      console.log(`Failed fetching item (${this.item_name}) from: ${this.retailer}`);
+      return false;
+    }
+
+    await this.preparseWait();
+
+    const inStockButton = await this.page.$x(this.selector);
+
+    console.log(`\nFinished fetching item (${this.item_name}) from: `, this.chalkHeader(this.retailer));
+    
+    return inStockButton.length > 0;
   }
 
   async getItems(): Promise<Array<Item>> {

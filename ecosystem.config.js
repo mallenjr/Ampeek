@@ -1,9 +1,9 @@
 module.exports = {
   apps : [{
-    name: "scraper",
-    script: './dist/index.js',
+    name: "vision",
+    script: './dist/vision.js',
   }, {
-    name: 'scheduler',
-    script: './dist/scheduler.js',
+    name: 'loki',
+    script: './dist/loki.js',
   }],
 };

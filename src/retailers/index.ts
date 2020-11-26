@@ -1,7 +1,7 @@
 import { BestBuyScraper } from './bestBuy';
 import { AmazonScraper } from './amazon';
 import { NeweggScraper } from './newegg';
-import { WalmartScraper } from './walmart';
+import { WalmartPurchaser, WalmartScraper } from './walmart';
 
 export {
   BestBuyScraper,
@@ -15,6 +15,10 @@ export const Scrapers = {
   'amazon': AmazonScraper,
   'newegg': NeweggScraper,
   'walmart': WalmartScraper,
+};
+
+export const Purchasers = {
+  'walmart': WalmartPurchaser,
 };
 
 export const Retailers = [

@@ -29,7 +29,30 @@ export class Database {
           console.log('Failed to add products table to the database');
           reject(err);
         }
-        resolve();
+        resolve(null);
+      });
+    });
+  }
+
+  async createAccountsTable() {
+    const sql = `
+    CREATE TABLE IF NOT EXISTS account (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL,
+      password TEXT NOT NULL,
+      retailer_id INTEGER NOT NULL,
+      FOREIGN KEY (retailer_id)
+        REFERENCES retailer (id)
+    )
+    `;
+
+    return new Promise((resolve, reject) => {
+      this.db.run(sql, (err) => {
+        if (err) {
+          console.log('Failed to add account table to the database');
+          reject(err);
+        }
+        resolve(null);
       });
     });
   }
@@ -72,7 +95,7 @@ export class Database {
           console.log('Failed to add retailers table to the database');
           reject(err);
         }
-        resolve();
+        resolve(null);
       });
     });
   }
@@ -100,6 +123,7 @@ export class Database {
       await this.createRetailersTable();
       await this.populateRetailersTable();
       await this.createLinksTable();
+      await this.createAccountsTable();
     } catch (e) {
       console.log(e);
       throw new Error();
