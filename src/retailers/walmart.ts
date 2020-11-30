@@ -1,8 +1,9 @@
 import { Browser, BrowserContext, ElementHandle } from 'puppeteer';
-import { Item, Scraper } from '../scraper';
+import { Item, Scraper } from '../classes/scraper';
 import chalk = require("chalk");
 import { MessageEmbed, TextChannel } from 'discord.js'; 
 import { Purchaser } from '../purchaser';
+import { Task } from '../classes/task';
 // import { sleep } from '../utils';
 
 export class WalmartScraper extends Scraper {
@@ -125,5 +126,42 @@ export class WalmartPurchaser extends Purchaser {
     }
 
     await this.page.waitForNavigation();
+  }
+}
+
+export async function walmartLogin(username: string, password: string, broswer: Browser) {
+  const context = await broswer.createIncognitoBrowserContext()
+  const page = await context.newPage();
+  await page.goto('https://www.walmart.com/account/login');
+  await page.type('#email', username);
+  await page.type('#password', password);
+  const [button] = await page.$x("//button[contains(., 'Sign in')]");
+  if (button) {
+    await button.click();
+  } else {
+    return null;
+  }
+
+  try {
+    await page.waitForNavigation();
+  } catch (e) {
+    console.log(`Login failed for account [${username}] on retailer [walmart]`);
+    await page.close();
+    return null;
+  }
+  const cookies = await page.cookies();
+  await page.close();
+  return cookies;
+}
+
+export class WalmartTask extends Task {
+  constructor(browser: Browser, url: string, name: string, retailer: string, max_purchase_amount: number = 1) {
+    super(browser, url, name, retailer, max_purchase_amount);
+  }
+
+  async checkItemInStock(): Promise<boolean> {
+    const inStockSelector = '//a[contains(text(), "Add to Cart")]|//button[contains(text(), "Add to Cart")]|//span[contains(text(), "Add to Cart")]|//a[contains(text(), "Add to cart")]|//button[contains(text(), "Add to cart")]|//span[contains(text(), "Add to cart")]';
+    const inStockButton = await this.page.$x(inStockSelector);
+    return inStockButton.length > 0;
   }
 }

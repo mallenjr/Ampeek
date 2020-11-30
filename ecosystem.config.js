@@ -1,9 +1,9 @@
 module.exports = {
   apps : [{
-    name: "vision",
-    script: './dist/vision.js',
+    name: "task manager",
+    script: './dist/lib/task_manager.js',
   }, {
-    name: 'loki',
-    script: './dist/loki.js',
+    name: 'session manager',
+    script: './dist/lib/session_manager.js',
   }],
 };

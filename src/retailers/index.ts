@@ -1,7 +1,7 @@
 import { BestBuyScraper } from './bestBuy';
 import { AmazonScraper } from './amazon';
 import { NeweggScraper } from './newegg';
-import { WalmartPurchaser, WalmartScraper } from './walmart';
+import { WalmartPurchaser, WalmartScraper, walmartLogin, WalmartTask } from './walmart';
 
 export {
   BestBuyScraper,
@@ -17,9 +17,17 @@ export const Scrapers = {
   'walmart': WalmartScraper,
 };
 
+export const LoginFunctions = {
+  'walmart': walmartLogin
+}
+
 export const Purchasers = {
   'walmart': WalmartPurchaser,
 };
+
+export const Tasks = {
+  'walmart': WalmartTask,
+}
 
 export const Retailers = [
   'bestbuy',

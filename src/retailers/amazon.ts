@@ -1,7 +1,7 @@
 import chalk = require("chalk");
 import { TextChannel, MessageEmbed } from "discord.js";
 import { Browser, ElementHandle } from "puppeteer";
-import { Item, Scraper } from "../scraper"
+import { Item, Scraper } from "../classes/scraper"
 const defaultUrl = 'https://www.amazon.com/stores/page/EE5B50AD-FBA9-40D8-9631-8E340D2B7B15'
 
 export class AmazonScraper extends Scraper {

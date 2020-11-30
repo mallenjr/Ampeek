@@ -1,5 +1,5 @@
 import inquirer = require('inquirer');
-import { Database } from './database';
+import { Database } from '../lib/database';
 // import { Subject } from 'rxjs';
 
 // interface RetailersResponse {

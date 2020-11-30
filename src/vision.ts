@@ -1,9 +1,9 @@
-import { Database } from './database';
+import { Database } from './lib/database';
 import { Scrapers } from './retailers';
 import * as puppeteer from 'puppeteer';
 import { Client, TextChannel } from 'discord.js';
 import { sleep } from './utils';
-import { Scraper } from './scraper';
+import { Scraper } from './classes/scraper';
 import zmq = require("zeromq");
 
 let scrapers = {};
@@ -56,14 +56,8 @@ async function bootstrap() {
   const db = new Database('./ampeek.db');
   await db.setup();
 
-  const purchasingQueue = zmq.socket('pub')
-  purchasingQueue.bind('tcp://*:8688', function(err) {
-    if (err) {
-      console.log(err)
-      return;
-    } else
-        console.log("Listening on 8688...")
-  });
+  const purchasingQueue = new zmq.Publisher()
+  await purchasingQueue.bind('tcp://localhost:8688');
 
   const browser = await puppeteer.launch({ headless: true });
 

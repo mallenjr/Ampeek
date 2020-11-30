@@ -1,7 +1,7 @@
 var zmq = require('zeromq');
 var subscriber = zmq.socket('sub');
 import * as puppeteer from 'puppeteer';
-import { Database } from './database';
+import { Database } from './lib/database';
 import { Purchaser } from './purchaser';
 import { Purchasers } from './retailers';
 import { WalmartPurchaser } from './retailers/walmart';

@@ -1,5 +1,5 @@
 import { Browser, ElementHandle } from "puppeteer";
-import { Scraper } from "../scraper";
+import { Scraper } from "../classes/scraper";
 import chalk = require("chalk");
 import { TextChannel } from "discord.js";
 
@@ -39,4 +39,21 @@ export class NeweggScraper extends Scraper {
   getCheckoutLinkFromSku(sku: string) {
     return `https://secure.newegg.com/Shopping/AddtoCart.aspx?Submit=ADD&ItemList=${sku}`;
   }
+}
+
+export async function neweggLogin(username: string, password: string, broswer: Browser) {
+  const page = await broswer.newPage();
+  await page.goto('https://www.walmart.com/account/login');
+  await page.type('#email', username);
+  await page.type('#password', password);
+  const [button] = await page.$x("//button[contains(., 'Sign in')]");
+  if (button) {
+    await button.click();
+  } else {
+    return null;
+  }
+
+  await page.waitForNavigation();
+  const cookies = await page.cookies();
+  return cookies;
 }
