@@ -2,7 +2,7 @@ import { Browser, ElementHandle } from 'puppeteer';
 import { Scraper } from '../classes/scraper';
 import chalk = require("chalk");
 import { TextChannel } from 'discord.js';
-import { sleep } from '../utils';
+import { sleep } from '../utils/utils';
 
 export class BestBuyScraper extends Scraper {
   constructor(discord_channel: TextChannel, browser: Browser, url: string, item_name: string = 'RTX 2060', cooldown_time: number = 15000, max_price: number = 1000.00) {

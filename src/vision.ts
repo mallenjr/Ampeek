@@ -2,7 +2,7 @@ import { Database } from './lib/database';
 import { Scrapers } from './retailers';
 import * as puppeteer from 'puppeteer';
 import { Client, TextChannel } from 'discord.js';
-import { sleep } from './utils';
+import { sleep } from './utils/utils';
 import { Scraper } from './classes/scraper';
 import zmq = require("zeromq");
 

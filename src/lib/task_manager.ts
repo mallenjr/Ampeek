@@ -6,11 +6,10 @@ puppeteer.use(StealthPlugin());
 
 import cp = require('child_process');
 import { Browser } from "puppeteer";
+// import { sleep } from "../utils";
 
 interface TaskTracker {
-  [key: number]: {
-    [key: number]: cp.ChildProcess
-  }
+  [key: number]: cp.ChildProcess,
 }
 
 const tasksTracker: TaskTracker = {};
@@ -43,36 +42,23 @@ async function getTasks(db:Database) {
 async function executeTasks(tasks:any, browser: Browser) {
   for (const index in tasks) {
     const task = tasks[index];
-    let taskRef = tasksTracker[task.id];
 
-    if (!taskRef) {
-      tasksTracker[task.id] = {};
-      taskRef = tasksTracker[task.id];
-    }
-
-    if (Object.keys(taskRef).length >= task.task_amount) {
+    if (tasksTracker[task.id]) {
       continue;
     }
 
-    const adjustedTaskCount = Math.min(task.task_amount, task.purchase_amount) - Object.keys(taskRef).length;
+    tasksTracker[task.id] = cp.fork('./dist/lib/task_scrape.js', [browser.wsEndpoint()]);
 
-    for(const count in Array.from(Array(Math.max(0, adjustedTaskCount)).keys())) {
+    tasksTracker[task.id].on('message', (m) => {
+      console.log(m);
+    });
 
-      const key = Date.now() + count;
+    tasksTracker[task.id].send(task);
 
-      taskRef[key] = cp.fork('./dist/lib/task_execute.js', [browser.wsEndpoint()]);
-
-      taskRef[key].on('message', (m) => {
-        console.log(m);
-      });
-
-      taskRef[key].send(task);
-
-      taskRef[key].on('close', (m) => {
-        delete taskRef[key];
-        console.log(m);
-      });
-    }
+    tasksTracker[task.id].on('close', (m) => {
+      delete tasksTracker[task.id];
+      console.log(m);
+    });
   }
 }
 
@@ -83,9 +69,7 @@ async function bootstrap() {
   const browser = await puppeteer.launch({ headless: false });
 
   const tasks = await getTasks(db);
-  while (true) {
-    await executeTasks(tasks, browser);
-  }
+  await executeTasks(tasks, browser);
 }
 
 bootstrap();

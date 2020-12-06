@@ -1,9 +1,10 @@
-import { Browser, BrowserContext, ElementHandle } from 'puppeteer';
+import { Browser, ElementHandle } from 'puppeteer';
 import { Item, Scraper } from '../classes/scraper';
 import chalk = require("chalk");
 import { MessageEmbed, TextChannel } from 'discord.js'; 
-import { Purchaser } from '../purchaser';
+import { Purchaser } from '../classes/purchaser';
 import { Task } from '../classes/task';
+import WalmartEncrypt from '../utils/walmart_encrypt';
 // import { sleep } from '../utils';
 
 export class WalmartScraper extends Scraper {
@@ -44,68 +45,58 @@ export class WalmartScraper extends Scraper {
 }
 
 export class WalmartPurchaser extends Purchaser {
-  constructor(browser: BrowserContext, url: string) {
+  constructor(browser: Browser, url: string) {
     super(browser, url);
+    this.retailer = 'walmart';
   }
 
-  async login(email: string, password: string) {
-    this.page = await this.broswer.newPage();
-    await this.page.goto('https://www.walmart.com/account/login');
-    await this.page.type('#email', email);
-    await this.page.type('#password', password);
-    const [button] = await this.page.$x("//button[contains(., 'Sign in')]");
-    if (button) {
-      await button.click();
-    } else {
-      return null;
-    }
-
-    await this.page.waitForNavigation();
-    const cookies = await this.page.cookies();
-    return cookies;
-  }
-
-  async setup() {
-    this.page = await this.broswer.newPage();
-    await this.page.goto(this.item_url);
-  }
-
-  async buy() {
+  async buy(): Promise<boolean> {
     const [button] = await this.page.$x('//a[contains(text(), "Add to Cart")]|//button[contains(text(), "Add to Cart")]|//span[contains(text(), "Add to Cart")]|//a[contains(text(), "Add to cart")]|//button[contains(text(), "Add to cart")]|//span[contains(text(), "Add to cart")]');
     if (button) {
       await button.click();
     } else {
-      return null;
+      return false;
     }
 
-    await this.page.waitForNavigation();
-
+    await this.page.waitForNavigation({ waitUntil: ['networkidle2'] });
+    if (!await this.setProxy()) {
+      return false;
+    }
     const [checkoutButton] = await this.page.$x('//a[contains(text(), "Check Out")]|//button[contains(text(), "Check Out")]|//span[contains(text(), "Check Out")]|//a[contains(text(), "Check out")]|//button[contains(text(), "Check out")]|//span[contains(text(), "Check out")]');
     if (checkoutButton) {
       await checkoutButton.click();
     } else {
-      return null;
+      return false;
     }
 
-    await this.page.waitForNavigation();
+    await this.page.waitForNavigation({ waitUntil: ['networkidle2'] });
+    if (!await this.setProxy()) {
+      return false;
+    }
 
-    const [deliveryButton] = await this.page.$x("//button[contains(., 'Continue')]|//span[contains(., 'Continue')]");
+    const [deliveryButton] = await this.page.$x('//a[contains(text(), "Continue")]|//button[contains(text(), "Continue")]|//span[contains(text(), "Continue")]|//a[contains(text(), "Continue")]|//button[contains(text(), "Continue")]|//span[contains(text(), "Continue")]');
     if (deliveryButton) {
       await deliveryButton.click();
     } else {
-      return null;
+      return false;
     }
 
-    await this.page.waitForNavigation();
+    await this.page.waitForNavigation({ waitUntil: ['networkidle2'] });
+    if (!await this.setProxy()) {
+      return false;
+    }
 
-    const [shippingButton] = await this.page.$x("//button[contains(., 'Continue')]|//span[contains(., 'Continue')]");
+    const [shippingButton] = await this.page.$x('//a[contains(text(), "Continue")]|//button[contains(text(), "Continue")]|//span[contains(text(), "Continue")]|//a[contains(text(), "Continue")]|//button[contains(text(), "Continue")]|//span[contains(text(), "Continue")]');
     if (shippingButton) {
       await shippingButton.click();
     } else {
-      return null;
+      return false;
     }
 
     await this.page.waitForNavigation();
+    if (!await this.setProxy()) {
+      return false;
+    }
 
     await this.page.type('#cvv-confirm', '936');
 
@@ -113,19 +104,20 @@ export class WalmartPurchaser extends Purchaser {
     if (reviewButton) {
       await reviewButton.click();
     } else {
-      return null;
+      return false;
     }
 
     await this.page.waitForNavigation();
+    return true;
 
-    const [orderButton] = await this.page.$x("//button[contains(., 'Place order')]|//span[contains(., 'Place order')]");
-    if (orderButton) {
-      await orderButton.click();
-    } else {
-      return null;
-    }
+    // const [orderButton] = await this.page.$x("//button[contains(., 'Place order')]|//span[contains(., 'Place order')]");
+    // if (orderButton) {
+    //   await orderButton.click();
+    // } else {
+    //   return null;
+    // }
 
-    await this.page.waitForNavigation();
+    // await this.page.waitForNavigation();
   }
 }
 
@@ -156,7 +148,13 @@ export async function walmartLogin(username: string, password: string, broswer: 
 
 export class WalmartTask extends Task {
   constructor(browser: Browser, url: string, name: string, retailer: string, max_purchase_amount: number = 1) {
-    super(browser, url, name, retailer, max_purchase_amount);
+    super(browser, url, name, retailer, max_purchase_amount, ['domcontentloaded']);
+    this.blockedHosts = [];
+  }
+
+  async captcha(): Promise<boolean> {
+    const url = new URL(this.page.url()).toString();
+    return url.indexOf('/blocked') > 0;
   }
 
   async checkItemInStock(): Promise<boolean> {

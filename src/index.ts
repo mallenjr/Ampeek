@@ -1,6 +1,6 @@
 import { Client, TextChannel } from 'discord.js';
 import * as puppeteer from 'puppeteer';
-import { sleep } from './utils';
+import { sleep } from './utils/utils';
 // import { AmazonScraper } from './retailers/amazon';
 import { BestBuyScraper } from './retailers/bestBuy';
 import { WalmartScraper } from './retailers/walmart';

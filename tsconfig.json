@@ -15,7 +15,9 @@
       "noUnusedParameters": false,
       "pretty": true,
       "noFallthroughCasesInSwitch": true,
-      "allowUnreachableCode": false
+      "allowUnreachableCode": false,
+      "downlevelIteration": true,
+      "allowJs": true
   },
   "include": [
     "src",
